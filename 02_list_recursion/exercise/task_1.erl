@@ -7,7 +7,14 @@
 %% implement lists:any/2
 %% http://www.erlang.org/doc/man/lists.html#any-2
 any(Pred, List) ->
-    false.
+  case List of
+    [] -> false;
+    [Head | Tail] ->
+      case Pred(Head) of
+        true -> true;
+        false -> any(Pred, Tail)
+      end
+    end.
 
 
 any_test() ->
@@ -24,8 +31,14 @@ any_test() ->
 %% implement lists:all/2
 %% http://www.erlang.org/doc/man/lists.html#all-2
 all(Pred, List) ->
-    false.
-
+    case List of
+      [] -> true;
+      [Head | Tail] ->
+        case Pred(Head) of
+          true -> all(Pred, Tail);
+          false -> false
+        end
+    end.
 
 all_test() ->
     F1 = fun(V) -> V >= 10 end,
@@ -35,4 +48,4 @@ all_test() ->
     F2 = fun(V) -> V rem 2 =:= 0 end,
     ?assertEqual(true, all(F2, [4, 6, 8])),
     ?assertEqual(false, all(F2, [2, 3, 4])),
-    ok.
+ok.
