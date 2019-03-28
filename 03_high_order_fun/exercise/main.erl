@@ -59,17 +59,53 @@ sample_champ() ->
     ].
 
 
-get_stat(Champ) ->
-    {0, 0, 0.0, 0.9}.
+%%-record(stat, {
+%%              num_teams = 0,
+%%              num_players = 0,
+%%              avg_age = 0,
+%%              avg_rating = 0
+%%              }).
 
+get_stat(Champ) ->
+  Champ_total_stat = lists:foldl(
+    fun(Team,Acc) ->
+      {team,_Name,Players} = Team,
+      {NT,NP,AA,AR} = Acc,
+      Acc1 = {NT +1, lists:foldl(
+                                    fun(_Player, NP1) ->
+                                      NP1+1
+                                    end,NP,Players),
+                     lists:foldl(
+                                    fun(Player,AA1) ->
+                                      {player,_,Age,_,_} = Player,
+                                      AA1+Age
+                                    end,AA,Players),
+                     lists:foldl(
+                                    fun(Player,AR1) ->
+                                      {player,_,_,Rating,_} = Player,
+                                      AR1 + Rating
+                                    end,AR,Players)},
+      Acc1
+    end,{0,0,0,0},Champ),
+  {NT,NP,AA,AR} = Champ_total_stat,
+  {NT,NP,AA/NP,AR/NP}.
 
 get_stat_test() ->
     ?assertEqual({5,40,24.85,242.8}, get_stat(sample_champ())),
     ok.
 
 
-filter_sick_players(Champ) ->
-    Champ.
+filter_sick_players(Champ) -> filter_sick_players(Champ,[]).
+
+filter_sick_players([],Acc) -> lists:reverse(Acc);
+filter_sick_players([Head | Tail],Acc) ->
+  {team,NameTeam,PlayersTeam} = Head,
+  F = fun({player,_,_,_,CurrHealth}) -> CurrHealth >= 50 end,
+  Acc1 = lists:filter(F,PlayersTeam),
+  case length(Acc1) >= 5 of
+    true -> filter_sick_players(Tail,[{team,NameTeam,Acc1}|Acc]);
+    false -> filter_sick_players(Tail,Acc)
+  end.
 
 
 filter_sick_players_test() ->
@@ -105,7 +141,13 @@ filter_sick_players_test() ->
 
 
 make_pairs(Team1, Team2) ->
-    [].
+  {team, _Name1, Players1} = Team1,
+  {team, _Name2, Players2} = Team2,
+  [
+    {Player1, Player2} || {player, Player1, _Age1, R1, _Health1} <- Players1,
+                          {player, Player2, _Age, R2, _Health2} <- Players2,
+                          R1 + R2 > 600
+  ].
 
 
 make_pairs_test() ->
@@ -135,4 +177,4 @@ make_pairs_test() ->
                   {"Son of Hen","Jumping Cow"},
                   {"Son of Hen","Cow Flow"}],
                  main:make_pairs(T4, T3)),
-    ok.
+ok.
