@@ -1,5 +1,5 @@
-test:
-	erlc short_link.erl short_link_test.erl test.erl
+test: clean
+	erlc test.erl groupusers.erl
 	erl -s test run
 
 clean:
