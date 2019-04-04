@@ -37,20 +37,41 @@ init() ->
 
 
 add_idea(Id, Title, Author, Rating, Description) ->
-    ok.
+  ets:insert(great_ideas_table,
+             [#idea{id = Id, title = Title, author = Author, rating = Rating,
+                    description = Description}]).
 
 
 get_idea(Id) ->
-    not_found.
+    case ets:lookup(great_ideas_table,Id) of
+      [Value] -> {ok,Value};
+      [] -> not_found
+    end.
 
 
 ideas_by_author(Author) ->
-    [].
+    ets:match_object(great_ideas_table,{idea,'_','_',Author,'_','_'}).
 
 
 ideas_by_rating(Rating) ->
-    [].
+  MS = ets:fun2ms(fun(#idea{rating = CurrRating} = Idea) when CurrRating >= Rating -> Idea end),
+  ets:select(great_ideas_table, MS).
+
 
 
 get_authors() ->
-    [].
+  MS = ets:fun2ms(fun(#idea{author = Author}) -> Author end),
+  Authors = ets:select(great_ideas_table, MS),
+  AuthorsWithNum = maps:to_list(get_authors(Authors,#{})),
+  lists:sort(fun
+                ({Author1,NumIdea},{Author2,NumIdea}) -> Author1 < Author2;
+                ({_,NumIdea1},{_,NumIdea2}) -> NumIdea1 > NumIdea2
+              end,AuthorsWithNum).
+
+
+get_authors([],Acc) -> Acc;
+get_authors([Head|Tail],Acc) ->
+  case maps:find(Head,Acc) of
+    {ok,Value} -> get_authors(Tail,Acc#{Head := Value+1});
+    error -> get_authors(Tail,Acc#{Head => 1})
+  end.
