@@ -1,6 +1,6 @@
 -module(map_reduce).
 
--export([start/1,maps_reduce/2,mapping/2, file_to_binary/1,glue_maps/1]).
+-export([start/1,maps_reduce/2,mapping/2]).
 
 
 start(Files) ->
