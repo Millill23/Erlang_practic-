@@ -98,5 +98,7 @@ chat_room_manager_test() ->
                  chat_room:get_history(RoomPid2)),
     ?assertEqual([{<<"Bob">>, <<"Hello">>}, {<<"Helen">>, <<"Hi">>}],
                  chat_user:get_messages(UserPid3)),
-
-    ok.
+    ?assertEqual(ok, chat_room_manager:close_room(RoomPid2)),
+    ?assertEqual({error, room_not_found}, chat_room_manager:get_history(RoomPid2)),
+    ?assertEqual([Room1], chat_room_manager:get_rooms()),
+ok.
