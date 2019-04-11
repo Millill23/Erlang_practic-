@@ -1,7 +1,7 @@
 -module(chat_room).
 -behavior(gen_server).
 
--export([start_link/0, add_user/3, remove_user/2, get_users/1, add_message/3, get_history/1]).
+-export([start_link/0, add_user/3, remove_user/2, get_users/1, add_message/3, get_history/1,close_room/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -type(name() :: binary()).
@@ -38,6 +38,10 @@ add_message(RoomPid,UserName,Message) ->
 get_history(RoomPid)->
   gen_server:call(RoomPid,get_history).
 
+-spec close_room(pid()) -> ok.
+close_room(RoomPid)->
+  gen_server:cast(RoomPid,close_room), ok.
+
 init([])->
   {ok,#state{}}.
 
@@ -57,9 +61,14 @@ handle_call(get_history,_From,#state{messages = Messages} = State)->
 handle_cast({add_user,UserName,UserPid},#state{users = Users} = State)->
   {noreply, State#state{users = Users#{UserPid => UserName}}};
 
+handle_cast(close_room,State)->
+  exit(normal),
+  {noreply, State};
+
 handle_cast({add_message,UserName,Message},#state{messages = Messages, users = Users} = State) ->
   maps:map(fun(PidUser,_NameUser) -> chat_user:add_message(PidUser,UserName,Message), _NameUser end,Users),
   {noreply,State#state{messages = [{UserName,Message} | Messages]}}.
+
 
 handle_info(_Request, State) ->
     {noreply, State}.
