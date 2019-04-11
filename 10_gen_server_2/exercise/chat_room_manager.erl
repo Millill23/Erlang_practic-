@@ -4,7 +4,7 @@
 -export([start_link/0,
          create_room/1, get_rooms/0,
          add_user/3, remove_user/2, get_users/1,
-         send_message/3,  get_history/1]).
+         send_message/3,  get_history/1, close_room/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -type(name() :: binary()).
@@ -43,6 +43,10 @@ send_message(RoomPid,FromName,Message)->
 get_history(RoomPid)->
   gen_server:call(manager,{get_history,RoomPid}).
 
+-spec close_room(pid()) -> ok | {error, room_not_found}.
+close_room(RoomPid)->
+  gen_server:call(manager,{close_room,RoomPid}).
+
 init([])->
   {ok,#{}}.
 
@@ -75,6 +79,16 @@ handle_call({get_users,RoomPid},_From,State)->
 handle_call({send_message,RoomPid,FromName,Message},_From,State)->
   case maps:find(RoomPid,State) of
     {ok,_RoomName} -> {reply,chat_room:add_message(RoomPid,FromName,Message),State};
+    error -> {reply,{error, room_not_found},State}
+  end;
+
+handle_call({close_room,RoomPid},_From,State)->
+  case maps:find(RoomPid,State) of
+    {ok,_RoomName} ->
+                    Reference = erlang:monitor(process, RoomPid),
+                    chat_room:close_room(RoomPid),
+                    erlang:demonitor(Reference, [flush]),
+                    {reply,ok,maps:remove(RoomPid,State)};
     error -> {reply,{error, room_not_found},State}
   end;
 
