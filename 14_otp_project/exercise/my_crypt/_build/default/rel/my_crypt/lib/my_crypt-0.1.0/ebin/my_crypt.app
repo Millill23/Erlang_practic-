@@ -1,0 +1,12 @@
+{application,my_crypt,
+             [{description,"My first app"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{my_crypt_app,[]}},
+              {applications,[kernel,stdlib]},
+              {env,[{encode_key,<<"GVXLCLF4nJ5qtcAHQHmx">>},
+                    {seed,{1,2,3}},
+                    {hash_size,16}]},
+              {modules,[my_crypt,my_crypt_app,my_crypt_sup]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

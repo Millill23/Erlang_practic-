@@ -1,0 +1,6 @@
+-sname my_crypt
+
+-setcookie my_crypt_cookie
+
++K true
++A30

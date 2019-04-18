@@ -1,0 +1,7 @@
+%% coding: utf-8
+[{release,"my_crypt","0.1.0","9.3.3.3",
+          [{kernel,"5.4.3.2","./lib/kernel-5.4.3.2"},
+           {stdlib,"3.4.5","./lib/stdlib-3.4.5"},
+           {my_crypt,"0.1.0","./lib/my_crypt-0.1.0"},
+           {sasl,"3.1.2","./lib/sasl-3.1.2"}],
+          permanent}].

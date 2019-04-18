@@ -1,0 +1,9 @@
+my_crypt
+=====
+
+An OTP application
+
+Build
+-----
+
+    $ rebar3 compile
