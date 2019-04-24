@@ -1,0 +1,19 @@
+Error: badarg
+[{erlang,function_exported,[{port,1234},module_info,0],[]},
+ {rebar_paths,'-purge_and_load/2-lc$^8/1-8-',1,
+              [{file,"/opt/rebar3-3.9.1/src/rebar_paths.erl"},{line,136}]},
+ {rebar_paths,purge_and_load,2,
+              [{file,"/opt/rebar3-3.9.1/src/rebar_paths.erl"},{line,135}]},
+ {rebar_paths,set_paths,2,
+              [{file,"/opt/rebar3-3.9.1/src/rebar_paths.erl"},{line,21}]},
+ {rebar_prv_compile,do,1,
+                    [{file,"/opt/rebar3-3.9.1/src/rebar_prv_compile.erl"},
+                     {line,40}]},
+ {rebar_prv_eunit,compile,1,
+                  [{file,"/opt/rebar3-3.9.1/src/rebar_prv_eunit.erl"},
+                   {line,340}]},
+ {rebar_prv_eunit,do,1,
+                  [{file,"/opt/rebar3-3.9.1/src/rebar_prv_eunit.erl"},
+                   {line,47}]},
+ {rebar_core,do,2,[{file,"/opt/rebar3-3.9.1/src/rebar_core.erl"},{line,154}]}]
+

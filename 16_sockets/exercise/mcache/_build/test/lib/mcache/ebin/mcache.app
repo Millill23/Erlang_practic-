@@ -1,0 +1,11 @@
+{application,mcache,
+             [{description,"My mcache app"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{mcache_app,[]}},
+              {applications,[kernel,stdlib]},
+              {env,[{port,1234},{numAcceptors,5}]},
+              {modules,[mc_mcache_server,mc_mcache_storage,mcache_app,
+                        mcache_sup]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.
