@@ -36,14 +36,14 @@ init(no_args) ->
 
 handle_call({get,Key}, _From, State) ->
   case ets:lookup(?MODULE,Key) of
-                  [{_,V}] -> Val = <<"VALUE ",V/binary>>;
+                  [{_,V}] -> Val = <<"VALUE ",Key/binary," ",V/binary,"\r\n","END">>;
                   [] -> Val = <<"NOT FOUND">>
   end,
-    {reply,<<Val/binary,"\n">>,State};
+    {reply,<<Val/binary>>,State};
 
 handle_call({set,Key,Val}, _From, State) ->
     ets:insert(?MODULE,{Key,Val}),
-    {reply,<<"STORED\n">>, State};
+    {reply,<<"STORED\r\n">>, State};
 
 handle_call({gets,Keys}, _From, State) ->
     F = fun(Key) -> case ets:lookup(?MODULE,Key) of
@@ -51,14 +51,14 @@ handle_call({gets,Keys}, _From, State) ->
                     [] -> {Key,<<"NOT FOUND">>}
                     end end,
     Vals = lists:map(F,Keys),
-    {reply,<<Vals/binary,"\n">>, State};
+    {reply,Vals, State};
 
 handle_call({delete,Key}, _From, State) ->
   case ets:take(?MODULE,Key) of
                   [_] -> Rep = <<"DELETED">>;
                   [] -> Rep = <<"NOT FOUND">>
   end,
-    {reply,<<Rep/binary,"\n">>,State};
+    {reply,<<Rep/binary>>,State};
 
 handle_call({add,Key,Val}, _From, State) ->
   case ets:lookup(?MODULE,Key) of
@@ -66,7 +66,7 @@ handle_call({add,Key,Val}, _From, State) ->
                   [] -> Rep = <<"STORED">>,
                         ets:insert(?MODULE,{Key,Val})
   end,
-    {reply,<<Rep/binary,"\n">>,State};
+    {reply,<<Rep/binary>>,State};
 
 handle_call({replace,Key,Val}, _From, State) ->
   case ets:lookup(?MODULE,Key) of
@@ -75,7 +75,7 @@ handle_call({replace,Key,Val}, _From, State) ->
                   [] -> Rep = <<"NOT FOUND">>
 
   end,
-    {reply,<<Rep/binary,"\n">>,State};
+    {reply,<<Rep/binary>>,State};
 
 handle_call({append,Key,Val}, _From, State) ->
   case ets:lookup(?MODULE,Key) of
@@ -83,7 +83,7 @@ handle_call({append,Key,Val}, _From, State) ->
                   ets:insert(?MODULE,{Key,<<OldVal/binary,Val/binary>>});
                   [] -> Rep = <<"NOT FOUND">>
   end,
-    {reply,<<Rep/binary,"\n">>,State};
+    {reply,<<Rep/binary>>,State};
 
 handle_call({prepend,Key,Val}, _From, State) ->
   case ets:lookup(?MODULE,Key) of
@@ -91,7 +91,7 @@ handle_call({prepend,Key,Val}, _From, State) ->
                   ets:insert(?MODULE,{Key,<<Val/binary,OldVal/binary>>});
                   [] -> Rep = <<"NOT FOUND">>
   end,
-    {reply,<<Rep/binary,"\n">>,State}.
+    {reply,<<Rep/binary>>,State}.
 
 handle_cast(_Request, #state{} = State) ->
     {noreply, State}.
