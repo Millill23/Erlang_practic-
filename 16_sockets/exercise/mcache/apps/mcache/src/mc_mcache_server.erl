@@ -41,7 +41,7 @@ handle_connect(ID,ListenSocket,AcceptSocket)->
   case gen_tcp:recv(AcceptSocket,0) of
     {ok,Msg} ->
             Answer = parse_msg(Msg),
-            gen_tcp:send(AcceptSocket,<<Answer/binary, "\n\r">>),
+            gen_tcp:send(AcceptSocket,<<Answer/binary, "\r\n">>),
             handle_connect(ID,ListenSocket,AcceptSocket);
     {error,closed}->
       start_acceptor(ID,ListenSocket)
@@ -57,11 +57,11 @@ parse_msg(Msg1)->
 
           <<"GET">> -> Key = Tail,
                         A = mc_mcache_storage:get(Key),
-                        <<A/binary,"END">>;
+                        <<A/binary>>;
 
           <<"GETS">> -> Keys = binary:split(Tail,<<" ">>,[global]),
                         Answer = mc_mcache_storage:gets(Keys),
-                        F = fun({Key,Val},Acc) -> <<Acc/binary,"VALUE ",Key/binary," ",Val/binary,"\n">> end,
+                        F = fun({Key,Val},Acc) -> <<Acc/binary,"VALUE ",Key/binary," ",Val/binary,"\r\n">> end,
                         A = lists:foldl(F,<<>>,Answer),
                         <<A/binary,"END">>;
 
@@ -80,7 +80,7 @@ parse_msg(Msg1)->
           <<"PREPEND">> -> [Key,Val] = binary:split(Tail,<<" ">>),
                         mc_mcache_storage:prepend(Key,Val);
 
-          _ -> <<"UNKNOWN REQUEST","\n">>
+          _ -> <<"UNKNOWN REQUEST">>
         end;
-  [_] -> <<"UNKNOWN REQUEST","\n">>
+  [_] -> <<"UNKNOWN REQUEST">>
 end.
